@@ -1,0 +1,13 @@
+Comments:
+  - Add leakages to water network
+
+Network:
+  filename: water.inp
+
+times:
+  StartTime: 2021-04-01 00:00
+  EndTime: 2021-04-07 00:00
+
+leakages:
+- # linkID, startTime, endTime, leakDiameter (m), leakType, peakTime
+- p147, 2021-04-02 13:30, 2021-04-05 23:55, 0.018, abrupt, 2021-04-03 13:30

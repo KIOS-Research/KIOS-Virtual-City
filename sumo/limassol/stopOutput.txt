@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on Wed Jan 13 13:06:20 2021 by Eclipse SUMO sumo Version 1.8.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="limup.net.xml"/>
+        <route-files value="lim.rou.xml"/>
+    </input>
+
+    <output>
+        <link-output value="linkOutput.txt"/>
+        <lanechange-output value="lanechangeOutput.txt"/>
+        <stop-output value="stopOutput.txt"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="100"/>
+        <step-length value="0.1"/>
+    </time>
+
+    <processing>
+        <collision.action value="teleport"/>
+        <time-to-teleport value="15"/>
+    </processing>
+
+    <traci_server>
+        <remote-port value="56819"/>
+    </traci_server>
+
+    <gui_only>
+        <tracker-interval value="0.1"/>
+    </gui_only>
+
+</configuration>
+-->
+
+<stops xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/stopinfo_file.xsd">
+</stops>

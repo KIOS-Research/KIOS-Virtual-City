@@ -1,0 +1,28 @@
+apiVersion: 1
+
+datasources:
+  - name: PostgreSQL-1
+    uid: 1
+    type: postgres
+    database: virtual_city
+    user: kios
+    url: db
+    isDefault: true
+    secureJsonData:
+      password: "kios1234!"
+    jsonData:
+      sslmode: "disable"
+      postgresVersion: 1200
+  - name: InfluxDB
+    uid: 2
+    type: influxdb
+    database: virtual_city
+    user: kios
+    url: influxdb:8086
+    access: proxy
+    isDefault: false
+    secureJsonData:
+      password: "kios1234!"
+    jsonData:
+      httpMode: "GET"
+

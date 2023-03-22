@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>basp.databaseTables &#8212; KIOS BaSP 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for basp.databaseTables</h1><div class="highlight"><pre>
+<span></span><span class="c1">#Define Constants</span>
+<span class="c1">#&#39;water_output_nodes_demands&#39;, &#39;water_output_nodes_head&#39;, &#39;water_output_nodes_pressure&#39;, &#39;water_output_nodes_quality&#39;</span>
+<span class="c1">#&#39;water_output_links_friction&#39;, &#39;water_output_links_headloss&#39;, &#39;water_output_links_quality&#39;, &#39;water_output_links_reactionrate&#39;, &#39;water_output_links_setting&#39;, &#39;water_output_links_status&#39;, &#39;water_output_links_velocity&#39;</span>
+<div class="viewcode-block" id="epanetTableKeywords"><a class="viewcode-back" href="../../basp.html#basp.databaseTables.epanetTableKeywords">[docs]</a><span class="k">def</span> <span class="nf">epanetTableKeywords</span><span class="p">():</span>
+    <span class="n">epanet_Table_keywords</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;water_JUNCTIONS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_RESERVOIRS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_TANKS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_PIPES&#39;</span><span class="p">,</span> <span class="s1">&#39;water_PUMPS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_VALVES&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;water_EMITTERS&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;water_CURVES&#39;</span><span class="p">,</span> <span class="s1">&#39;water_PATTERNS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_ENERGY&#39;</span><span class="p">,</span> <span class="s1">&#39;water_STATUS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_DEMANDS&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;water_QUALITY&#39;</span><span class="p">,</span> <span class="s1">&#39;water_REACTIONS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_SOURCES&#39;</span><span class="p">,</span> <span class="s1">&#39;water_MIXING&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;water_OPTIONS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_TIMES&#39;</span><span class="p">,</span> <span class="s1">&#39;water_REPORT&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;water_COORDINATES&#39;</span><span class="p">,</span> <span class="s1">&#39;water_VERTICES&#39;</span><span class="p">,</span> <span class="s1">&#39;water_LABELS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_CONTROLS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_RULES&#39;</span><span class="p">,</span> <span class="s1">&#39;water_BACKDROP&#39;</span><span class="p">,</span> <span class="s1">&#39;water_TAGS&#39;</span><span class="p">,</span> <span class="s1">&#39;water_output_nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;water_output_nodes_values&#39;</span><span class="p">,</span> <span class="s1">&#39;water_output_links&#39;</span><span class="p">,</span> <span class="s1">&#39;water_output_links_values&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">epanet_Table_keywords</span></div>
+
+
+<div class="viewcode-block" id="epanetSimulationTableKeywords"><a class="viewcode-back" href="../../basp.html#basp.databaseTables.epanetSimulationTableKeywords">[docs]</a><span class="k">def</span> <span class="nf">epanetSimulationTableKeywords</span><span class="p">():</span>
+    <span class="n">epanet_Simulation_Table_keywords</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;water_output_nodes&#39;</span><span class="p">,</span> <span class="s1">&#39;water_output_nodes_values&#39;</span><span class="p">,</span> <span class="s1">&#39;water_output_links&#39;</span><span class="p">,</span> <span class="s1">&#39;water_output_links_values&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">epanet_Simulation_Table_keywords</span></div>
+
+
+<div class="viewcode-block" id="epanetINPKeywords"><a class="viewcode-back" href="../../basp.html#basp.databaseTables.epanetINPKeywords">[docs]</a><span class="k">def</span> <span class="nf">epanetINPKeywords</span><span class="p">():</span>
+    <span class="n">epanet_INP_keywords</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;[TITLE]&#39;</span><span class="p">,</span> <span class="s1">&#39;[JUNCTIONS]&#39;</span><span class="p">,</span> <span class="s1">&#39;[RESERVOIRS]&#39;</span><span class="p">,</span> <span class="s1">&#39;[TANKS]&#39;</span><span class="p">,</span> <span class="s1">&#39;[PIPES]&#39;</span><span class="p">,</span> <span class="s1">&#39;[PUMPS]&#39;</span><span class="p">,</span> <span class="s1">&#39;[VALVES]&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;[EMITTERS]&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;[CURVES]&#39;</span><span class="p">,</span> <span class="s1">&#39;[PATTERNS]&#39;</span><span class="p">,</span> <span class="s1">&#39;[ENERGY]&#39;</span><span class="p">,</span> <span class="s1">&#39;[STATUS]&#39;</span><span class="p">,</span> <span class="s1">&#39;[CONTROLS]&#39;</span><span class="p">,</span> <span class="s1">&#39;[RULES]&#39;</span><span class="p">,</span> <span class="s1">&#39;[DEMANDS]&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;[QUALITY]&#39;</span><span class="p">,</span> <span class="s1">&#39;[REACTIONS]&#39;</span><span class="p">,</span> <span class="s1">&#39;[SOURCES]&#39;</span><span class="p">,</span> <span class="s1">&#39;[MIXING]&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;[OPTIONS]&#39;</span><span class="p">,</span> <span class="s1">&#39;[TIMES]&#39;</span><span class="p">,</span> <span class="s1">&#39;[REPORT]&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;[COORDINATES]&#39;</span><span class="p">,</span> <span class="s1">&#39;[VERTICES]&#39;</span><span class="p">,</span> <span class="s1">&#39;[LABELS]&#39;</span><span class="p">,</span> <span class="s1">&#39;[BACKDROP]&#39;</span><span class="p">,</span> <span class="s1">&#39;[TAGS]&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;[END]&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">epanet_INP_keywords</span></div>
+
+
+<div class="viewcode-block" id="epanetINPFields"><a class="viewcode-back" href="../../basp.html#basp.databaseTables.epanetINPFields">[docs]</a><span class="k">def</span> <span class="nf">epanetINPFields</span><span class="p">():</span>
+    <span class="n">INPfields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;JUNCTIONS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Elev&#39;</span><span class="p">,</span> <span class="s1">&#39;Demand&#39;</span><span class="p">,</span> <span class="s1">&#39;Pattern&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;RESERVOIRS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Head&#39;</span><span class="p">,</span> <span class="s1">&#39;Pattern&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;TANKS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Elevation&#39;</span><span class="p">,</span> <span class="s1">&#39;InitLevel&#39;</span><span class="p">,</span> <span class="s1">&#39;MinLevel&#39;</span><span class="p">,</span> <span class="s1">&#39;MaxLevel&#39;</span><span class="p">,</span> <span class="s1">&#39;Diameter&#39;</span><span class="p">,</span> <span class="s1">&#39;MinVol&#39;</span><span class="p">,</span> <span class="s1">&#39;VolCurve&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;PIPES&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Node1&#39;</span><span class="p">,</span> <span class="s1">&#39;Node2&#39;</span><span class="p">,</span> <span class="s1">&#39;Length&#39;</span><span class="p">,</span> <span class="s1">&#39;Diameter&#39;</span><span class="p">,</span> <span class="s1">&#39;Roughness&#39;</span><span class="p">,</span> <span class="s1">&#39;MinorLoss&#39;</span><span class="p">,</span> <span class="s1">&#39;Status&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;PUMPS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Node1&#39;</span><span class="p">,</span> <span class="s1">&#39;Node2&#39;</span><span class="p">,</span> <span class="s1">&#39;Parameters&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;VALVES&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Node1&#39;</span><span class="p">,</span> <span class="s1">&#39;Node2&#39;</span><span class="p">,</span> <span class="s1">&#39;Diameter&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">,</span> <span class="s1">&#39;Setting&#39;</span><span class="p">,</span> <span class="s1">&#39;MinorLoss&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;TAGS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Object&#39;</span><span class="p">,</span> <span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Tag&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;DEMANDS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Junction&#39;</span><span class="p">,</span> <span class="s1">&#39;Demand&#39;</span><span class="p">,</span> <span class="s1">&#39;Pattern&#39;</span><span class="p">,</span> <span class="s1">&#39;Category&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;STATUS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;StatusSetting&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;PATTERNS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;Multipliers&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;CURVES&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;XValue&#39;</span><span class="p">,</span> <span class="s1">&#39;YValue&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;CONTROLS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;----&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;RULES&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;ruleID&#39;</span><span class="p">,</span> <span class="s1">&#39;Rule&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;ENERGY&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;EMITTERS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Junction&#39;</span><span class="p">,</span> <span class="s1">&#39;Coefficient&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;QUALITY&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Node&#39;</span><span class="p">,</span> <span class="s1">&#39;InitQual&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;SOURCES&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Node&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">,</span> <span class="s1">&#39;Quality&#39;</span><span class="p">,</span> <span class="s1">&#39;Pattern&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;REACTIONS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">,</span> <span class="s1">&#39;Coefficient&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;MIXING&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Tank&#39;</span><span class="p">,</span> <span class="s1">&#39;Model&#39;</span><span class="p">,</span> <span class="s1">&#39;Volume&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;TIMES&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;REPORT&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;OPTIONS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;COORDINATES&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Node&#39;</span><span class="p">,</span> <span class="s1">&#39;XCoord&#39;</span><span class="p">,</span> <span class="s1">&#39;YCoord&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;VERTICES&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Link&#39;</span><span class="p">,</span> <span class="s1">&#39;XCoord&#39;</span><span class="p">,</span> <span class="s1">&#39;YCoord&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;LABELS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;XCoord&#39;</span><span class="p">,</span> <span class="s1">&#39;YCoord&#39;</span><span class="p">,</span> <span class="s1">&#39;Label&#39;</span><span class="p">,</span> <span class="s1">&#39;Anchor&#39;</span><span class="p">],</span>
+              <span class="s1">&#39;BACKDROP&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;field&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">]}</span>
+    <span class="k">return</span> <span class="n">INPfields</span></div>
+
+
+<div class="viewcode-block" id="finalAllINPFields"><a class="viewcode-back" href="../../basp.html#basp.databaseTables.finalAllINPFields">[docs]</a><span class="k">def</span> <span class="nf">finalAllINPFields</span><span class="p">():</span>
+    <span class="n">allfields</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;JUNCTIONS&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;junctionid&quot;</span><span class="p">,</span> <span class="s2">&quot;Elev&quot;</span><span class="p">,</span> <span class="s2">&quot;Demand&quot;</span><span class="p">,</span> <span class="s2">&quot;Pattern&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;RESERVOIRS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;reservoirid&quot;</span><span class="p">,</span> <span class="s2">&quot;Head&quot;</span><span class="p">,</span> <span class="s2">&quot;Pattern&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;TANKS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;tankid&quot;</span><span class="p">,</span> <span class="s2">&quot;Elevation&quot;</span><span class="p">,</span> <span class="s2">&quot;InitLevel&quot;</span><span class="p">,</span> <span class="s2">&quot;MinLevel&quot;</span><span class="p">,</span> <span class="s2">&quot;MaxLevel&quot;</span><span class="p">,</span> <span class="s2">&quot;Diameter&quot;</span><span class="p">,</span> <span class="s2">&quot;MinVol&quot;</span><span class="p">,</span> <span class="s2">&quot;VolCurve&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;PIPES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pipeid&quot;</span><span class="p">,</span> <span class="s2">&quot;Node1&quot;</span><span class="p">,</span> <span class="s2">&quot;Node2&quot;</span><span class="p">,</span> <span class="s2">&quot;Length&quot;</span><span class="p">,</span> <span class="s2">&quot;Diameter&quot;</span><span class="p">,</span> <span class="s2">&quot;Roughness&quot;</span><span class="p">,</span> <span class="s2">&quot;MinorLoss&quot;</span><span class="p">,</span> <span class="s2">&quot;Status&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;PUMPS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pumpid&quot;</span><span class="p">,</span> <span class="s2">&quot;Node1&quot;</span><span class="p">,</span> <span class="s2">&quot;Node2&quot;</span><span class="p">,</span> <span class="s2">&quot;Parameters&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;VALVES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;valveid&quot;</span><span class="p">,</span> <span class="s2">&quot;Node1&quot;</span><span class="p">,</span> <span class="s2">&quot;Node2&quot;</span><span class="p">,</span> <span class="s2">&quot;Diameter&quot;</span><span class="p">,</span> <span class="s2">&quot;Type&quot;</span><span class="p">,</span> <span class="s2">&quot;Setting&quot;</span><span class="p">,</span> <span class="s2">&quot;MinorLoss&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;DEMANDS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Junction&quot;</span><span class="p">,</span> <span class="s2">&quot;Demand&quot;</span><span class="p">,</span> <span class="s2">&quot;Pattern&quot;</span><span class="p">,</span> <span class="s2">&quot;Category&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;STATUS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;statusid&quot;</span><span class="p">,</span> <span class="s2">&quot;StatusSetting&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;PATTERNS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;patternid&quot;</span><span class="p">,</span> <span class="s2">&quot;Multipliers&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;CURVES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;curveid&quot;</span><span class="p">,</span> <span class="s2">&quot;XValue&quot;</span><span class="p">,</span> <span class="s2">&quot;YValue&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;CONTROLS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;control&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;RULES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ruleID&quot;</span><span class="p">,</span> <span class="s2">&quot;Rule&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;ENERGY&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;TIMES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;REPORT&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;OPTIONS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;EMITTERS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Junction&quot;</span><span class="p">,</span> <span class="s2">&quot;Coefficient&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;QUALITY&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Node&quot;</span><span class="p">,</span> <span class="s2">&quot;InitQual&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;SOURCES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Node&quot;</span><span class="p">,</span> <span class="s2">&quot;Type&quot;</span><span class="p">,</span> <span class="s2">&quot;Quality&quot;</span><span class="p">,</span> <span class="s2">&quot;Pattern&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;REACTIONS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Type&quot;</span><span class="p">,</span> <span class="s2">&quot;Coefficient&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;MIXING&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Tank&quot;</span><span class="p">,</span> <span class="s2">&quot;Model&quot;</span><span class="p">,</span> <span class="s2">&quot;Volume&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;COORDINATES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Node&quot;</span><span class="p">,</span> <span class="s2">&quot;XCoord&quot;</span><span class="p">,</span> <span class="s2">&quot;YCoord&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;VERTICES&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Link&quot;</span><span class="p">,</span> <span class="s2">&quot;XCoord&quot;</span><span class="p">,</span> <span class="s2">&quot;YCoord&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;LABELS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;XCoord&quot;</span><span class="p">,</span> <span class="s2">&quot;YCoord&quot;</span><span class="p">,</span> <span class="s2">&quot;Label&quot;</span><span class="p">,</span> <span class="s2">&quot;Anchor&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;BACKDROP&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                 <span class="s2">&quot;TAGS&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Object&quot;</span><span class="p">,</span> <span class="s2">&quot;tagid&quot;</span><span class="p">,</span> <span class="s2">&quot;Tag&quot;</span><span class="p">]}</span>
+
+    <span class="k">return</span> <span class="n">allfields</span></div>
+
+
+<div class="viewcode-block" id="sumoDBtables"><a class="viewcode-back" href="../../basp.html#basp.databaseTables.sumoDBtables">[docs]</a><span class="k">def</span> <span class="nf">sumoDBtables</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;add&#39;</span><span class="p">:</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CREATE TABLE IF NOT EXISTS transportation_vehicles(timestep FLOAT NOT NULL, vehicleid VARCHAR NOT NULL, eclass VARCHAR NOT NULL, co2 FLOAT NOT NULL, co FLOAT NOT NULL, hc FLOAT NOT NULL, nox FLOAT NOT NULL, pmx FLOAT NOT NULL, fuel FLOAT NOT NULL, electricity FLOAT NOT NULL, noise FLOAT NOT NULL, route VARCHAR NOT NULL, waiting FLOAT NOT NULL, x FLOAT NOT NULL, y FLOAT NOT NULL, angle FLOAT NOT NULL, vehtype VARCHAR NOT NULL, speed FLOAT NOT NULL, pos FLOAT NOT NULL, lane VARCHAR NOT NULL, slope FLOAT NOT NULL, primary key(timestep, vehicleid));&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;CREATE TABLE IF NOT EXISTS transportation_edges (timestep FLOAT NOT NULL, edjeid VARCHAR NOT NULL, laneid VARCHAR NOT NULL, traveltime FLOAT NOT NULL,co2 FLOAT NOT NULL, co FLOAT NOT NULL, hc FLOAT NOT NULL, nox FLOAT NOT NULL, pmx FLOAT NOT NULL,fuel FLOAT NOT NULL, electricity FLOAT NOT NULL, noise FLOAT NOT NULL, maxspeed FLOAT NOT NULL, meanspeed FLOAT NOT NULL, occupancy FLOAT NOT NULL, vehicle_count FLOAT NOT NULL, primary key(timestep, edjeid, laneid));&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DELETE FROM transportation_vehicles;&quot;</span><span class="p">,</span> <span class="s2">&quot;DELETE FROM transportation_edges;&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">tables</span></div>
+
+
+<div class="viewcode-block" id="waterDBtables"><a class="viewcode-back" href="../../basp.html#basp.databaseTables.waterDBtables">[docs]</a><span class="k">def</span> <span class="nf">waterDBtables</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;add&#39;</span><span class="p">:</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_JUNCTIONS (id SERIAL, junctionid VARCHAR, Elev FLOAT, Demand FLOAT, Pattern VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_RESERVOIRS (id SERIAL, reservoirid VARCHAR, Head FLOAT, Pattern VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_TANKS (id SERIAL, tankid VARCHAR, Elevation FLOAT, InitLevel FLOAT, MinLevel FLOAT, MaxLevel FLOAT, Diameter FLOAT, MinVol FLOAT, VolCurve VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_PIPES (id SERIAL, pipeid VARCHAR, Node1 VARCHAR, Node2 VARCHAR, Length FLOAT, Diameter FLOAT, Roughness FLOAT, MinorLoss FLOAT, Status VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_PUMPS (id SERIAL, pumpid VARCHAR, Node1 VARCHAR, Node2 VARCHAR, Parameters VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_VALVES (id SERIAL, valveid VARCHAR, Node1 VARCHAR, Node2 VARCHAR, Diameter FLOAT, Type VARCHAR, Setting FLOAT, MinorLoss FLOAT);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_DEMANDS (id SERIAL, Junction VARCHAR, Demand FLOAT, Pattern VARCHAR, Category VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_STATUS (id SERIAL, statusid VARCHAR, StatusSetting VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_PATTERNS (id SERIAL, patternid VARCHAR, Multipliers VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_CURVES (id SERIAL, curveid VARCHAR, XValue FLOAT, YValue FLOAT);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_ENERGY (id SERIAL, field VARCHAR, value VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_TIMES (id SERIAL, field VARCHAR, value VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_REPORT (id SERIAL, field VARCHAR, value VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_OPTIONS (id SERIAL, field VARCHAR, value VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_EMITTERS (id SERIAL, Junction VARCHAR, Coefficient FLOAT);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_QUALITY (id SERIAL, Node VARCHAR, InitQual FLOAT);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_SOURCES (id SERIAL, Node VARCHAR, Type VARCHAR, Quality FLOAT, Pattern VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_REACTIONS (id SERIAL, Type VARCHAR, Coefficient FLOAT);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_MIXING (id SERIAL, Tank VARCHAR, Model VARCHAR, Volume FLOAT);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_COORDINATES (id SERIAL, Node VARCHAR, XCoord FLOAT, YCoord FLOAT);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_VERTICES (id SERIAL, Link VARCHAR, XCoord FLOAT, YCoord FLOAT);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_LABELS (id SERIAL, XCoord FLOAT, YCoord FLOAT, Label VARCHAR, Anchor VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_CONTROLS (id SERIAL, control VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_RULES (id SERIAL, ruleid VARCHAR, Rule VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_BACKDROP (id SERIAL, field VARCHAR, value VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_TAGS (id SERIAL, Object VARCHAR, tagid VARCHAR, Tag VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_output_nodes (id SERIAL, nodeid VARCHAR, nodetype VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_output_nodes_values (id SERIAL, nodeid VARCHAR, readingtime timestamp, nodedemand DOUBLE PRECISION, nodehead DOUBLE PRECISION, nodepressure DOUBLE PRECISION, nodequality DOUBLE PRECISION);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_output_links (id SERIAL, linkid VARCHAR, linktype VARCHAR);&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;CREATE TABLE IF NOT EXISTS water_output_links_values(id SERIAL, linkid VARCHAR, readingtime timestamp, linkfriction DOUBLE PRECISION, linkheadloss DOUBLE PRECISION, linkquality DOUBLE PRECISION, linkreactionrate DOUBLE PRECISION, linksetting DOUBLE PRECISION, linkstatus VARCHAR, linkvelocity DOUBLE PRECISION);&#39;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">epanetTableKeywords</span><span class="p">():</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;TRUNCATE &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;;&#39;</span>
+            <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;deletesimulations&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">epanetSimulationTableKeywords</span><span class="p">():</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;TRUNCATE &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;;&#39;</span>
+            <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tables</span></div>
+
+
+<div class="viewcode-block" id="electricityDBtables"><a class="viewcode-back" href="../../basp.html#basp.databaseTables.electricityDBtables">[docs]</a><span class="k">def</span> <span class="nf">electricityDBtables</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;add&#39;</span><span class="p">:</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CREATE TABLE IF NOT EXISTS power_substations (substationid INTEGER NOT NULL, lineid INTEGER NOT NULL, primary key(substationid));&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;CREATE TABLE IF NOT EXISTS power_voltages (substationid INTEGER NOT NULL, lineid INTEGER NOT NULL, mestime TIMESTAMP NOT NULL, phase_a DOUBLE PRECISION NOT NULL, phase_b DOUBLE PRECISION NOT NULL, phase_c DOUBLE PRECISION NOT NULL, primary key(substationid, lineid, mestime));&quot;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DELETE FROM power_substations;&quot;</span><span class="p">,</span> <span class="s2">&quot;DELETE FROM power_voltages;&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">tables</span></div>
+
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">tables = [&#39;CREATE TABLE IF NOT EXISTS water_JUNCTIONS (ID VARCHAR, Elev FLOAT, Demand FLOAT, Pattern VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_RESERVOIRS (ID VARCHAR, Head FLOAT, Pattern VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_TANKS (ID VARCHAR, Elevation FLOAT, InitLevel FLOAT, MinLevel FLOAT, MaxLevel FLOAT, Diameter FLOAT, MinVol FLOAT, VolCurve VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_PIPES (ID VARCHAR, Node1 VARCHAR, Node2 VARCHAR, Length FLOAT, Diameter FLOAT, Roughness FLOAT, MinorLoss FLOAT, Status VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_PUMPS (ID VARCHAR, Node1 VARCHAR, Node2 VARCHAR, Parameters VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_VALVES (ID VARCHAR, Node1 VARCHAR, Node2 VARCHAR, Diameter FLOAT, Type VARCHAR, Setting FLOAT, MinorLoss FLOAT);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_DEMANDS (Junction VARCHAR, Demand FLOAT, Pattern VARCHAR, Category VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_STATUS (ID VARCHAR, StatusSetting VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_PATTERNS (ID VARCHAR, Multipliers VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_CURVES (ID VARCHAR, XValue FLOAT, YValue FLOAT);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_ENERGY (field VARCHAR, value VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_TIMES (field VARCHAR, value VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_REPORT (field VARCHAR, value VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_OPTIONS (field VARCHAR, value VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_EMITTERS (Junction VARCHAR, Coefficient FLOAT);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_QUALITY (Node VARCHAR, InitQual FLOAT);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_SOURCES (Node VARCHAR, Type VARCHAR, Quality FLOAT, Pattern VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_REACTIONS (Type VARCHAR, Coefficient FLOAT);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_MIXING (Tank VARCHAR, Model VARCHAR, Volume FLOAT);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_COORDINATES (Node VARCHAR, XCoord FLOAT, YCoord FLOAT);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_VERTICES (Link VARCHAR, XCoord FLOAT, YCoord FLOAT);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_LABELS (XCoord FLOAT, YCoord FLOAT, Label VARCHAR, Anchor VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_CONTROLS (control VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_RULES (ruleID VARCHAR, Rule VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_BACKDROP (field VARCHAR, value VARCHAR);&#39;,</span>
+<span class="sd">                  &#39;CREATE TABLE IF NOT EXISTS water_TAGS (Object VARCHAR, ID VARCHAR, Tag VARCHAR);&#39;]</span>
+<span class="sd">&#39;&#39;&#39;</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">KIOS BaSP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, KIOS CoE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

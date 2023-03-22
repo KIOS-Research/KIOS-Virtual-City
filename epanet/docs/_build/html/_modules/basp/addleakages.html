@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>basp.addleakages &#8212; KIOS BaSP 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for basp.addleakages</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">wntr</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="c1"># import time</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sqrt</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+
+<div class="viewcode-block" id="addwaterleak"><a class="viewcode-back" href="../../basp.html#basp.addleakages.addwaterleak">[docs]</a><span class="k">def</span> <span class="nf">addwaterleak</span><span class="p">(</span><span class="n">yalmfile</span><span class="p">,</span> <span class="n">wn</span><span class="p">):</span>
+    <span class="n">leak_pipes</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">yalmfile</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">leak_pipes</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">][</span><span class="s1">&#39;StartTime&#39;</span><span class="p">]</span>
+    <span class="n">end_time</span> <span class="o">=</span> <span class="n">leak_pipes</span><span class="p">[</span><span class="s1">&#39;times&#39;</span><span class="p">][</span><span class="s1">&#39;EndTime&#39;</span><span class="p">]</span>
+    <span class="n">leakages</span> <span class="o">=</span> <span class="n">leak_pipes</span><span class="p">[</span><span class="s1">&#39;leakages&#39;</span><span class="p">]</span>
+    <span class="n">leakages</span> <span class="o">=</span> <span class="n">leakages</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">number_of_leaks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">leakages</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">wn</span><span class="o">.</span><span class="n">junctions</span><span class="p">():</span>
+        <span class="n">node</span><span class="o">.</span><span class="n">required_pressure</span> <span class="o">=</span> <span class="mi">25</span>
+
+    <span class="n">time_step</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">wn</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">hydraulic_timestep</span><span class="p">)</span>
+    <span class="n">time_stamp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end_time</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">time_step</span> <span class="o">/</span> <span class="mi">60</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;min&quot;</span><span class="p">)</span>
+
+    <span class="n">wn</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">300</span>  <span class="c1"># 5min step</span>
+
+    <span class="n">TIMESTEPS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">wn</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">duration</span> <span class="o">/</span> <span class="n">wn</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">hydraulic_timestep</span><span class="p">)</span>
+
+    <span class="c1"># Initialize parameters for the leak</span>
+    <span class="n">leak_node</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">leak_diameter</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">leak_area</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">leak_type</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">leak_starts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">leak_ends</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">leak_peak_time</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">leak_param</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">leak_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">number_of_leaks</span><span class="p">):</span>
+        <span class="c1"># Split pipe and add a leak node</span>
+        <span class="c1"># leakages: pipeID, startTime, endTime, leakDiameter, leakType (abrupt, incipient)</span>
+        <span class="n">leakage_line</span> <span class="o">=</span> <span class="n">leakages</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Start time of leak</span>
+        <span class="n">ST</span> <span class="o">=</span> <span class="n">time_stamp</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">leakage_line</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># End Time of leak</span>
+        <span class="n">ET</span> <span class="o">=</span> <span class="n">time_stamp</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">leakage_line</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+        <span class="c1"># Get leak type</span>
+        <span class="n">leak_type</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">leakage_line</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+        <span class="c1"># Split pipe to add a leak</span>
+        <span class="n">pipe_id</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">get_link</span><span class="p">(</span><span class="n">leakage_line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">node_leak</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pipe_id</span><span class="si">}</span><span class="s1">_leaknode&#39;</span>
+        <span class="n">wn</span> <span class="o">=</span> <span class="n">wntr</span><span class="o">.</span><span class="n">morph</span><span class="o">.</span><span class="n">split_pipe</span><span class="p">(</span><span class="n">wn</span><span class="p">,</span> <span class="n">pipe_id</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pipe_id</span><span class="si">}</span><span class="s1">_Bleak&#39;</span><span class="p">,</span> <span class="n">node_leak</span><span class="p">)</span>
+        <span class="n">leak_node</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">wn</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="n">wn</span><span class="o">.</span><span class="n">node_name_list</span><span class="p">[</span><span class="n">wn</span><span class="o">.</span><span class="n">node_name_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">node_leak</span><span class="p">)])</span>
+
+        <span class="k">if</span> <span class="s1">&#39;incipient&#39;</span> <span class="ow">in</span> <span class="n">leak_type</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]:</span>
+            <span class="c1"># END TIME</span>
+            <span class="n">ET</span> <span class="o">=</span> <span class="n">ET</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">PT</span> <span class="o">=</span> <span class="n">time_stamp</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">leakage_line</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="c1"># Leak diameter as max magnitude for incipient</span>
+            <span class="n">nominal_pres</span> <span class="o">=</span> <span class="mi">100</span>
+            <span class="n">leak_diameter</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">leakage_line</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">leak_area</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">3.14159</span> <span class="o">*</span> <span class="p">(</span><span class="n">leak_diameter</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+            <span class="c1"># incipient</span>
+            <span class="n">leak_param</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;demand&#39;</span>
+            <span class="n">increment_leak_diameter</span> <span class="o">=</span> <span class="n">leak_diameter</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">PT</span> <span class="o">-</span> <span class="n">ST</span><span class="p">)</span>
+            <span class="n">increment_leak_diameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">increment_leak_diameter</span><span class="p">,</span> <span class="n">leak_diameter</span><span class="p">[</span><span class="n">leak_i</span><span class="p">],</span> <span class="n">increment_leak_diameter</span><span class="p">)</span>
+            <span class="n">increment_leak_area</span> <span class="o">=</span> <span class="mf">0.75</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="mf">990.27</span> <span class="o">*</span> <span class="mf">3.14159</span> <span class="o">*</span> <span class="p">(</span><span class="n">increment_leak_diameter</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">leak_magnitude</span> <span class="o">=</span> <span class="mf">0.75</span> <span class="o">*</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="mf">990.27</span> <span class="o">*</span> <span class="n">leak_area</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span>
+            <span class="n">pattern_array</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ST</span><span class="p">)</span> <span class="o">+</span> <span class="n">increment_leak_area</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="o">+</span> <span class="p">[</span><span class="n">leak_magnitude</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ET</span> <span class="o">-</span> <span class="n">PT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span>
+                        <span class="n">TIMESTEPS</span> <span class="o">-</span> <span class="n">ET</span><span class="p">)</span>
+
+            <span class="c1"># basedemand</span>
+            <span class="n">leak_node</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">demand_timeseries_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_base</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">pattern_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">leak_node</span><span class="p">[</span><span class="n">leak_i</span><span class="p">])</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="n">wn</span><span class="o">.</span><span class="n">add_pattern</span><span class="p">(</span><span class="n">pattern_name</span><span class="p">,</span> <span class="n">pattern_array</span><span class="p">)</span>
+            <span class="n">leak_node</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">demand_timeseries_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pattern_name</span> <span class="o">=</span> <span class="n">pattern_name</span>
+            <span class="n">leak_node</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">required_pressure</span> <span class="o">=</span> <span class="n">nominal_pres</span>
+            <span class="n">leak_node</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">minimum_pressure</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># save times of leak</span>
+            <span class="n">leak_starts</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_stamp</span><span class="p">[</span><span class="n">ST</span><span class="p">]</span>
+            <span class="n">leak_starts</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">leak_starts</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">_date_repr</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">leak_starts</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">_time_repr</span>
+            <span class="n">leak_ends</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_stamp</span><span class="p">[</span><span class="n">ET</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">leak_ends</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">leak_ends</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">_date_repr</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">leak_ends</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">_time_repr</span>
+            <span class="n">leak_peak_time</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_stamp</span><span class="p">[</span><span class="n">PT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_date_repr</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">time_stamp</span><span class="p">[</span><span class="n">PT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_time_repr</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">leak_param</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;leak_demand&#39;</span>
+            <span class="n">PT</span> <span class="o">=</span> <span class="n">ST</span>
+            <span class="n">leak_diameter</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">leakage_line</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">leak_area</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">3.14159</span> <span class="o">*</span> <span class="p">(</span><span class="n">leak_diameter</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+            <span class="n">leak_node</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">_leak_end_control_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">leak_i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;end&#39;</span>
+            <span class="n">leak_node</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">_leak_start_control_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">leak_i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;start&#39;</span>
+
+            <span class="n">leak_node</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">add_leak</span><span class="p">(</span><span class="n">wn</span><span class="p">,</span> <span class="n">discharge_coeff</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+                                       <span class="n">area</span><span class="o">=</span><span class="n">leak_area</span><span class="p">[</span><span class="n">leak_i</span><span class="p">],</span>
+                                       <span class="n">start_time</span><span class="o">=</span><span class="n">ST</span> <span class="o">*</span> <span class="n">time_step</span><span class="p">,</span>
+                                       <span class="n">end_time</span><span class="o">=</span><span class="p">(</span><span class="n">ET</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">time_step</span><span class="p">)</span>
+
+            <span class="n">leak_starts</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_stamp</span><span class="p">[</span><span class="n">ST</span><span class="p">]</span>
+            <span class="n">leak_starts</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">leak_starts</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">_date_repr</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">leak_starts</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">_time_repr</span>
+            <span class="n">leak_ends</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_stamp</span><span class="p">[</span><span class="n">ET</span><span class="p">]</span>
+            <span class="n">leak_ends</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">leak_ends</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">_date_repr</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">leak_ends</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span><span class="o">.</span><span class="n">_time_repr</span>
+            <span class="n">leak_peak_time</span><span class="p">[</span><span class="n">leak_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_stamp</span><span class="p">[</span><span class="n">PT</span><span class="p">]</span><span class="o">.</span><span class="n">_date_repr</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="n">time_stamp</span><span class="p">[</span><span class="n">PT</span><span class="p">]</span><span class="o">.</span><span class="n">_time_repr</span>
+
+    <span class="c1">#wn.write_inpfile(&#39;basp/Water/Watergggggg.inp&#39;)</span>
+    <span class="k">return</span> <span class="n">wn</span></div>
+<span class="c1"># wn.write_inpfile(&#39;Water_with_leaknodes.inp&#39;)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">sim = wntr.sim.WNTRSimulator(wn)</span>
+<span class="sd">results = sim.run_sim()</span>
+<span class="sd">jsontoexport = {&quot;NodeID&quot;: {}, &quot;NodeType&quot;: {}, &quot;NodeDemand&quot;: {}, &quot;NodeHead&quot;: {}, &quot;NodePressure&quot;: {},</span>
+<span class="sd">				&quot;NodeQuality&quot;: {}, &quot;LinkID&quot;: {}, &quot;LinkType&quot;: {}, &quot;LinkFlow&quot;: {}, &quot;LinkFriction&quot;: {},</span>
+<span class="sd">				&quot;LinkHeadLoss&quot;: {}, &quot;LinkQuality&quot;: {}, &quot;LinkReactionRate&quot;: {}, &quot;LinkSetting&quot;: {}, &quot;LinkStatus&quot;: {},</span>
+<span class="sd">				&quot;LinkVelocity&quot;: {}}</span>
+<span class="sd">x = 0</span>
+
+<span class="sd">for value in results.node[&#39;demand&#39;].keys():</span>
+<span class="sd">	if value == &#39;n215&#39;: </span>
+<span class="sd">		jsontoexport[&quot;NodeID&quot;][str(x)] = value</span>
+<span class="sd">		jsontoexport[&quot;NodeType&quot;][str(x)] = wn.get_node(value).node_type</span>
+<span class="sd">		dem = results.node[&#39;demand&#39;][value]</span>
+<span class="sd">		dem = [elem * 3600 for elem in dem]</span>
+<span class="sd">		jsontoexport[&quot;NodeDemand&quot;][str(x)] = dem</span>
+<span class="sd">		jsontoexport[&quot;NodePressure&quot;][str(x)] = list(results.node[&#39;pressure&#39;][value])</span>
+<span class="sd">		x += 1</span>
+
+<span class="sd">x = 0</span>
+<span class="sd">for value in wn.link_name_list:</span>
+<span class="sd">	if value == &#39;n215&#39;: </span>
+<span class="sd">		jsontoexport[&quot;LinkID&quot;][str(x)] = value</span>
+<span class="sd">		jsontoexport[&quot;LinkType&quot;][str(x)] = wn.get_link(value).link_type</span>
+<span class="sd">		jsontoexport[&quot;LinkFlow&quot;][str(x)] = list(results.link[&#39;flowrate&#39;][value])</span>
+<span class="sd">		flows = results.link[&#39;flowrate&#39;][value]</span>
+<span class="sd">		flows = [elem * 3600 for elem in flows]</span>
+<span class="sd">		#flows = flows[:len(self.time_stamp)]</span>
+<span class="sd">		jsontoexport[&quot;LinkFlow&quot;][str(x)] = flows</span>
+<span class="sd">		x += 1</span>
+<span class="sd">with open(&#39;test.json&#39;, &#39;w&#39;) as outfile:</span>
+<span class="sd">	json.dump(jsontoexport, outfile)</span>
+<span class="sd">&#39;&#39;&#39;</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">KIOS BaSP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, KIOS CoE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

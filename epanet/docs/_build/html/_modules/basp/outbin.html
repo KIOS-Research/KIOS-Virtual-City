@@ -1,0 +1,576 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>basp.outbin &#8212; KIOS BaSP 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for basp.outbin</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/python</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">SEEK_END</span>
+
+<span class="n">MAGICNUMBER</span><span class="o">=</span>     <span class="mi">516114521</span>
+<span class="n">MAXFNAME</span><span class="o">=</span>  <span class="mi">259</span>  <span class="c1">#/* Max. # characters in file name         */</span>
+<span class="n">MAXMSG</span>  <span class="o">=</span>   <span class="mi">79</span>  <span class="c1">#/* Max. # characters in message text      */</span>
+<span class="n">MAXID</span>   <span class="o">=</span>   <span class="mi">31</span>  <span class="c1">#/* Max. # characters in ID name           */ </span>
+<span class="n">INTSIZE</span> <span class="o">=</span>    <span class="mi">4</span>
+<span class="n">REAL4SIZE</span> <span class="o">=</span>  <span class="mi">4</span>
+
+
+<span class="n">_pressureunits</span><span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span><span class="s2">&quot;psi&quot;</span>
+                <span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="s2">&quot;meters&quot;</span>   
+                <span class="p">,</span><span class="mi">2</span><span class="p">:</span><span class="s2">&quot;kPa&quot;</span><span class="p">}</span>
+
+
+<span class="n">_statistics</span><span class="o">=</span>  <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>     <span class="c1">#none (report time series)</span>
+              <span class="p">,</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;time-averaged values&quot;</span>
+              <span class="p">,</span><span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;minimum values&quot;</span>
+              <span class="p">,</span><span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;maximum values&quot;</span>
+              <span class="p">,</span><span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;ranges&quot;</span><span class="p">}</span>
+
+<span class="n">_flowunits</span><span class="o">=</span> <span class="p">{</span><span class="mi">0</span> <span class="p">:</span> <span class="s2">&quot;cubic feet/second&quot;</span>
+            <span class="p">,</span><span class="mi">1</span> <span class="p">:</span> <span class="s2">&quot;gallons/minute&quot;</span>
+            <span class="p">,</span><span class="mi">2</span> <span class="p">:</span> <span class="s2">&quot;million gallons/day&quot;</span>
+            <span class="p">,</span><span class="mi">3</span> <span class="p">:</span> <span class="s2">&quot;Imperial million gallons/day&quot;</span>
+            <span class="p">,</span><span class="mi">4</span> <span class="p">:</span> <span class="s2">&quot;acre-ft/day&quot;</span>
+            <span class="p">,</span><span class="mi">5</span> <span class="p">:</span> <span class="s2">&quot;liters/second&quot;</span>
+            <span class="p">,</span><span class="mi">6</span> <span class="p">:</span> <span class="s2">&quot;liters/minute&quot;</span>
+            <span class="p">,</span><span class="mi">7</span> <span class="p">:</span> <span class="s2">&quot;megaliters/day&quot;</span>
+            <span class="p">,</span><span class="mi">8</span> <span class="p">:</span> <span class="s2">&quot;cubic meters/hour&quot;</span>
+            <span class="p">,</span><span class="mi">9</span> <span class="p">:</span> <span class="s2">&quot;cubic meters/day&quot;</span>
+                 <span class="p">}</span>
+
+<span class="n">_waterquality</span><span class="o">=</span> <span class="p">{</span> <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>   <span class="c1">#none</span>
+                <span class="p">,</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;chemical&quot;</span>
+                <span class="p">,</span><span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;age&quot;</span>
+                <span class="p">,</span><span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;source trace&quot;</span>
+               <span class="p">}</span>
+
+<span class="n">_status</span><span class="o">=</span>  <span class="p">{</span><span class="mi">0</span> <span class="p">:</span> <span class="s2">&quot;closed (max. head exceeded for pump)&quot;</span>
+          <span class="p">,</span><span class="mi">1</span> <span class="p">:</span> <span class="s2">&quot;temporarily closed&quot;</span>                              
+          <span class="p">,</span><span class="mi">2</span> <span class="p">:</span> <span class="s2">&quot;closed&quot;</span>                                          
+          <span class="p">,</span><span class="mi">3</span> <span class="p">:</span> <span class="s2">&quot;open&quot;</span>                                            
+          <span class="p">,</span><span class="mi">4</span> <span class="p">:</span> <span class="s2">&quot;active (partially open)&quot;</span>                         
+          <span class="p">,</span><span class="mi">5</span> <span class="p">:</span> <span class="s2">&quot;open (max. flow exceeded for pump)&quot;</span>              
+          <span class="p">,</span><span class="mi">6</span> <span class="p">:</span> <span class="s2">&quot;open (flow setting not met for FCV)&quot;</span>             
+          <span class="p">,</span><span class="mi">7</span> <span class="p">:</span> <span class="s2">&quot;open (pressure setting not met for PRV or PSV)&quot;</span><span class="p">}</span>
+
+<span class="n">_linktype</span><span class="o">=</span>  <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;PipeCV&quot;</span>
+            <span class="p">,</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;Pipe&quot;</span>
+            <span class="p">,</span><span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;Pump&quot;</span>   
+            <span class="p">,</span><span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;PRV&quot;</span>    
+            <span class="p">,</span><span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;PSV&quot;</span>    
+            <span class="p">,</span><span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;PBV&quot;</span>    
+            <span class="p">,</span><span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;FCV&quot;</span>    
+            <span class="p">,</span><span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;TCV&quot;</span>    
+            <span class="p">,</span><span class="mi">8</span><span class="p">:</span> <span class="s2">&quot;GPV&quot;</span><span class="p">}</span>
+
+
+
+
+
+<div class="viewcode-block" id="OutBinNode"><a class="viewcode-back" href="../../basp.html#basp.outbin.OutBinNode">[docs]</a><span class="k">class</span> <span class="nc">OutBinNode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">=</span> <span class="n">outfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="o">=</span> <span class="n">ordinal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span><span class="o">=</span> <span class="s2">&quot;JUNCTION&quot;</span>
+    <span class="k">def</span> <span class="nf">_read_timeserie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varindex</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">_node_timeserie</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="p">,</span> <span class="n">varindex</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;node ID&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">nodeID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nodetype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;node type&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">demand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;node Demand&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">head</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;node Head&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pressure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;node Pressure&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">quality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;node Water Quality&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="OutBinLink"><a class="viewcode-back" href="../../basp.html#basp.outbin.OutBinLink">[docs]</a><span class="k">class</span> <span class="nc">OutBinLink</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">=</span> <span class="n">outfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="o">=</span> <span class="n">ordinal</span>
+    <span class="k">def</span> <span class="nf">_read_timeserie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varindex</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">_link_timeserie</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="p">,</span>
+                                            <span class="n">varindex</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;link ID&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">linkID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">linktype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;link type&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outfile</span><span class="o">.</span><span class="n">linktype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ordinal</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">flow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;link flow&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;link velocity&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">headloss</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Headloss per 1000 Units of Length</span>
+
+<span class="sd">       (total head for pumps and head loss for valves)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">quality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;link Average Water Quality&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;status&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_status</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">4</span><span class="p">)]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">setting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;link setting</span>
+<span class="sd">        </span>
+<span class="sd">        Roughness coeff. for Pipes,</span>
+<span class="sd">        Speed for Pumps</span>
+<span class="sd">        Setting for Valves&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reactionrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;link Reaction Rate&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">friction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;link Friction Factor&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">varindex</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EpanetOutBin"><a class="viewcode-back" href="../../basp.html#basp.outbin.EpanetOutBin">[docs]</a><span class="k">class</span> <span class="nc">EpanetOutBin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class wrapper for Epanet binary output file</span>
+<span class="sd">    </span>
+<span class="sd">    example code:</span>
+<span class="sd">    &gt;&gt;&gt; import EpanetOutBin</span>
+<span class="sd">    &gt;&gt;&gt; with EpanetOutBin(&quot;Net1.bin&quot;) as a:</span>
+<span class="sd">    ...    print a.nodes.keys()</span>
+<span class="sd">    ...    print a.nodes[&#39;10&#39;].demand</span>
+<span class="sd">    ...    print a.flowunits</span>
+<span class="sd">    ...</span>
+<span class="sd">    [u&#39;11&#39;, u&#39;10&#39;, u&#39;13&#39;, u&#39;12&#39;, u&#39;21&#39;, u&#39;22&#39;, u&#39;23&#39;, u&#39;32&#39;, u&#39;31&#39;, u&#39;2&#39;, u&#39;9&#39;]</span>
+<span class="sd">    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,</span>
+<span class="sd">     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]</span>
+<span class="sd">    gallons/minute</span>
+<span class="sd">    </span>
+<span class="sd">    alternative use open/close:</span>
+<span class="sd">    &gt;&gt;&gt; import EpanetOutBin</span>
+<span class="sd">    &gt;&gt;&gt; a= EpanetOutBin(&quot;Net1.bin&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; a.open()</span>
+<span class="sd">    &gt;&gt;&gt; a.nodes[&#39;10&#39;].demand</span>
+<span class="sd">    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,</span>
+<span class="sd">     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]</span>
+<span class="sd">    &gt;&gt;&gt; a.close()&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nomefilebin</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="o">=</span>  <span class="n">nomefilebin</span>
+
+<div class="viewcode-block" id="EpanetOutBin.open"><a class="viewcode-back" href="../../basp.html#basp.outbin.EpanetOutBin.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">f</span><span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">=</span> <span class="n">f</span>
+
+        <span class="c1"># Prolog Section</span>
+        <span class="n">Prolog</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;15i&quot;</span><span class="p">,</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">Prolog</span><span class="p">[</span> <span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">MAGICNUMBER</span><span class="p">):</span>
+          <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> is not a  Epanet binary output file&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nomefilebin</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">CODEVERSION</span>  <span class="o">=</span><span class="n">Prolog</span><span class="p">[</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span>       <span class="o">=</span><span class="n">Prolog</span><span class="p">[</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Ntanks</span>       <span class="o">=</span><span class="n">Prolog</span><span class="p">[</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span>       <span class="o">=</span><span class="n">Prolog</span><span class="p">[</span> <span class="mi">4</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Npumps</span>       <span class="o">=</span><span class="n">Prolog</span><span class="p">[</span> <span class="mi">5</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Nvalves</span>      <span class="o">=</span><span class="n">Prolog</span><span class="p">[</span> <span class="mi">6</span><span class="p">]</span>
+        <span class="n">Tstatflag</span>    <span class="o">=</span><span class="n">Prolog</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span>
+        <span class="n">Rstart</span>       <span class="o">=</span><span class="n">Prolog</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span>
+        <span class="n">Rstep</span>        <span class="o">=</span><span class="n">Prolog</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span>
+        <span class="n">Dur</span>          <span class="o">=</span><span class="n">Prolog</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">INTSIZE</span><span class="p">,</span> <span class="n">SEEK_END</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_Nperiods</span><span class="p">,</span> <span class="n">warn</span><span class="p">,</span> <span class="n">magic</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;3i&quot;</span><span class="p">,</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">INTSIZE</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">magic</span> <span class="o">!=</span> <span class="n">MAGICNUMBER</span> <span class="p">:</span>
+          <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;File </span><span class="si">{0}</span><span class="s2"> corrupted or incomplete&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nomefilebin</span><span class="p">))</span>
+
+ 
+        <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">=</span> <span class="mi">0</span>
+        <span class="n">prolog_length</span> <span class="o">=</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span>
+        <span class="n">prolog_length</span><span class="o">+=</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#title</span>
+        <span class="n">prolog_length</span><span class="o">+=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#filenames</span>
+        <span class="n">prolog_length</span><span class="o">+=</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#ChemName QUALITY.Units</span>
+        <span class="n">prolog_length</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span><span class="o">*</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#nodenames</span>
+        <span class="n">prolog_length</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span><span class="o">*</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#linknames</span>
+        <span class="n">prolog_length</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span><span class="o">*</span><span class="n">INTSIZE</span><span class="o">*</span> <span class="mi">3</span> <span class="c1">#N1, N2, Type</span>
+        <span class="n">prolog_length</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Ntanks</span><span class="o">*</span><span class="p">(</span><span class="n">INTSIZE</span><span class="o">+</span> <span class="n">REAL4SIZE</span><span class="p">)</span> <span class="c1"># Tank[i].Node+ Tank[i].A</span>
+        <span class="n">prolog_length</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span><span class="o">*</span><span class="p">(</span><span class="n">REAL4SIZE</span><span class="p">)</span> <span class="c1">#node elevations</span>
+        <span class="n">prolog_length</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span><span class="o">*</span><span class="n">REAL4SIZE</span><span class="o">*</span><span class="mi">2</span><span class="c1">#link lengths &amp; diameters</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy_start</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="n">prolog_length</span>
+        <span class="n">energy_length</span> <span class="o">=</span> <span class="mi">7</span><span class="o">*</span><span class="n">REAL4SIZE</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_Npumps</span>
+        <span class="n">energy_length</span><span class="o">+=</span><span class="n">REAL4SIZE</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_start</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_start</span><span class="o">+</span> <span class="n">energy_length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_step</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">REAL4SIZE</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_step</span><span class="o">+=</span> <span class="mi">8</span><span class="o">*</span><span class="n">REAL4SIZE</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span>
+        <span class="n">dynamic_lenght</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_step</span><span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nperiods</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">epilog_start</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_start</span><span class="o">+</span><span class="n">dynamic_lenght</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span><span class="p">):</span>
+          <span class="n">node</span><span class="o">=</span> <span class="n">OutBinNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">ID</span><span class="p">]</span><span class="o">=</span> <span class="n">node</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Ntanks</span><span class="p">):</span>
+           <span class="n">area</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tankarea</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+           <span class="k">if</span> <span class="n">area</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+              <span class="n">tipo</span><span class="o">=</span> <span class="s2">&quot;TANK&quot;</span>
+           <span class="k">else</span><span class="p">:</span>
+              <span class="n">tipo</span><span class="o">=</span> <span class="s2">&quot;RESERVOIR&quot;</span>
+           <span class="n">nodo</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">tanknode</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span>
+           <span class="n">nodo</span><span class="o">.</span><span class="n">_type</span><span class="o">=</span> <span class="n">tipo</span>
+           <span class="n">nodo</span><span class="o">.</span><span class="n">area</span><span class="o">=</span> <span class="n">area</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_links</span><span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span><span class="p">):</span>
+          <span class="n">link</span><span class="o">=</span> <span class="n">OutBinLink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_links</span><span class="p">[</span><span class="n">link</span><span class="o">.</span><span class="n">ID</span><span class="p">]</span><span class="o">=</span> <span class="n">link</span></div>
+
+
+<div class="viewcode-block" id="EpanetOutBin.close"><a class="viewcode-back" href="../../basp.html#basp.outbin.EpanetOutBin.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+          
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span> <span class="p">,</span><span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;nodes dictionary (node ID as key)&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span>
+         
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">links</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;links dictionary (link ID as key)&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_links</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">quality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Water Quality&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="mi">7</span><span class="o">*</span><span class="n">INTSIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">i</span><span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">INTSIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_waterquality</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tracenode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Node ID for Source Tracing&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="mi">8</span><span class="o">*</span><span class="n">INTSIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">i</span><span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">INTSIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodeID</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">flowunits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Flow Units&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="mi">9</span><span class="o">*</span><span class="n">INTSIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">i</span><span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">INTSIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_flowunits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pressureunits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Pressure Units &quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">INTSIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">i</span><span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">INTSIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_pressureunits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Time Statistics &quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="mi">11</span><span class="o">*</span><span class="n">INTSIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">i</span><span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">INTSIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_statistics</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Problem Title&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">stri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">stri</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">stri</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stri</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inputfilename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Name of inputfile&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span><span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reportfilename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Name of reportfile&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span><span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">chemicalname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Name of Chemical&quot;</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">chemicalunits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Chemical Concentration Units &quot;</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span><span class="o">+</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Peak Energy Usage (kw-hrs)&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">energy_start</span><span class="o">+</span> <span class="mi">7</span><span class="o">*</span><span class="n">REAL4SIZE</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_Npumps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span>  <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">REAL4SIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">bulk_rrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Average bulk reaction rate (mass/hr)&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epilog_start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span>  <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">REAL4SIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wall_rrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Average wall reaction rate (mass/hr)&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epilog_start</span><span class="o">+</span> <span class="n">REAL4SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span>  <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">REAL4SIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tank_rrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Average tank reaction rate (mass/hr)&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epilog_start</span><span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">REAL4SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span>  <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">REAL4SIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">source_inflowrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Average source inflow rate (mass/hr)&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epilog_start</span><span class="o">+</span> <span class="mi">3</span><span class="o">*</span><span class="n">REAL4SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span>  <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">REAL4SIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">warning</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Warning Flag: True if warnings were generated&quot;</span>
+        <span class="n">addr</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epilog_start</span><span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">REAL4SIZE</span><span class="o">+</span> <span class="n">INTSIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span>  <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">INTSIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span>
+      
+    <span class="k">def</span> <span class="nf">_node_timeserie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">,</span> <span class="n">varindex</span><span class="p">):</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_start</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="n">varindex</span><span class="o">*</span><span class="n">REAL4SIZE</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="n">ordinal</span><span class="o">*</span> <span class="n">REAL4SIZE</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_link_timeserie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">,</span> <span class="n">varindex</span><span class="p">):</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_start</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">4</span><span class="o">*</span><span class="n">REAL4SIZE</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="n">varindex</span><span class="o">*</span><span class="n">REAL4SIZE</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="n">ordinal</span><span class="o">*</span> <span class="n">REAL4SIZE</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_timeserie</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_read_timeserie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+        <span class="n">x</span><span class="o">=</span><span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Nperiods</span><span class="p">):</span>
+           <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+           <span class="n">val</span><span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">REAL4SIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+           <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+           <span class="n">addr</span><span class="o">+=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">dynamic_step</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+
+    <span class="k">def</span> <span class="nf">_read_ID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="EpanetOutBin.nodeID"><a class="viewcode-back" href="../../basp.html#basp.outbin.EpanetOutBin.nodeID">[docs]</a>    <span class="k">def</span> <span class="nf">nodeID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="p">(</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_ID</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span></div>
+        
+<div class="viewcode-block" id="EpanetOutBin.linkID"><a class="viewcode-back" href="../../basp.html#basp.outbin.EpanetOutBin.linkID">[docs]</a>    <span class="k">def</span> <span class="nf">linkID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span><span class="o">*</span> <span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="p">(</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_ID</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EpanetOutBin.linktype"><a class="viewcode-back" href="../../basp.html#basp.outbin.EpanetOutBin.linktype">[docs]</a>    <span class="k">def</span> <span class="nf">linktype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span><span class="o">*</span> <span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span><span class="o">*</span> <span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">2</span><span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span><span class="o">*</span> <span class="n">INTSIZE</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="p">(</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span> <span class="n">INTSIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">val</span><span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">INTSIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_linktype</span><span class="p">[</span><span class="n">val</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="EpanetOutBin.tanknode"><a class="viewcode-back" href="../../basp.html#basp.outbin.EpanetOutBin.tanknode">[docs]</a>    <span class="k">def</span> <span class="nf">tanknode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">):</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span><span class="o">*</span> <span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span><span class="o">*</span> <span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">3</span><span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span><span class="o">*</span> <span class="n">INTSIZE</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="n">ordinal</span><span class="o">*</span> <span class="n">INTSIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="n">index</span><span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;i&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">INTSIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodeID</span><span class="p">(</span><span class="n">index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EpanetOutBin.tankarea"><a class="viewcode-back" href="../../basp.html#basp.outbin.EpanetOutBin.tankarea">[docs]</a>    <span class="k">def</span> <span class="nf">tankarea</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ordinal</span><span class="p">):</span>
+        <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prolog_start</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">15</span><span class="o">*</span><span class="n">INTSIZE</span><span class="o">+</span><span class="mi">3</span><span class="o">*</span><span class="p">(</span><span class="n">MAXMSG</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXFNAME</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nnodes</span><span class="o">*</span> <span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span><span class="o">*</span> <span class="p">(</span><span class="n">MAXID</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="mi">3</span><span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Nlinks</span><span class="o">*</span> <span class="n">INTSIZE</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Ntanks</span><span class="o">*</span> <span class="n">INTSIZE</span>
+        <span class="n">addr</span><span class="o">+=</span> <span class="n">ordinal</span><span class="o">*</span> <span class="n">REAL4SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;f&quot;</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">REAL4SIZE</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span></div></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">KIOS BaSP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, KIOS CoE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
