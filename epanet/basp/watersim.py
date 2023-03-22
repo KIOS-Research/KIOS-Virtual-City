@@ -1,5 +1,4 @@
-
-#!/usr/bin/python
+# !/usr/bin/python
 from __future__ import print_function
 import json
 from datetime import datetime
@@ -52,7 +51,7 @@ def addtodata(ids, uneditedmeasurements, placetosave, category):
                         except:
                             data[textid] = ''
                     placetosave.append(data)
-        elif category == 'REACTIONS' or category == 'ENERGY' or category == 'TIMES' or category == 'REPORT' or category =='OPTIONS':
+        elif category == 'REACTIONS' or category == 'ENERGY' or category == 'TIMES' or category == 'REPORT' or category == 'OPTIONS':
             for details in uneditedmeasurements:
                 if details[0] != '[' and details[0] != ';':
                     result = [x.strip() for x in details.split('\t')]
@@ -279,12 +278,14 @@ def adddbtolists():
     fullinputs['RESERVOIRS'] = inp_reservoirs
     tanks = dbcommunication.read_db_values('SELECT * FROM water_tanks')
     for value in tanks:
-        tan = {'ID': value[1], 'Elevation': value[2], 'InitLevel': value[3], 'MinLevel': value[4], 'MaxLevel': value[5], 'Diameter': value[6], 'MinVol': value[7], 'VolCurve': value[8]}
+        tan = {'ID': value[1], 'Elevation': value[2], 'InitLevel': value[3], 'MinLevel': value[4], 'MaxLevel': value[5],
+               'Diameter': value[6], 'MinVol': value[7], 'VolCurve': value[8]}
         inp_tanks.append(tan)
     fullinputs['TANKS'] = inp_tanks
     pipes = dbcommunication.read_db_values('SELECT * FROM water_pipes')
     for value in pipes:
-        pip = {'ID': value[1], 'Node1': value[2], 'Node2': value[3], 'Length': value[4], 'Diameter': value[5], 'Roughness': value[6], 'MinorLoss': value[7], 'Status': value[8]}
+        pip = {'ID': value[1], 'Node1': value[2], 'Node2': value[3], 'Length': value[4], 'Diameter': value[5],
+               'Roughness': value[6], 'MinorLoss': value[7], 'Status': value[8]}
         inp_pipes.append(pip)
     fullinputs['PIPES'] = inp_pipes
     pumps = dbcommunication.read_db_values('SELECT * FROM water_pumps')
@@ -294,7 +295,8 @@ def adddbtolists():
     fullinputs['PUMPS'] = inp_pumps
     valves = dbcommunication.read_db_values('SELECT * FROM water_valves')
     for value in valves:
-        val = {'ID': value[1], 'Node1': value[2], 'Node2': value[3], 'Diameter': value[4], 'Type': value[5], 'Setting': value[6], 'MinorLoss': value[7]}
+        val = {'ID': value[1], 'Node1': value[2], 'Node2': value[3], 'Diameter': value[4], 'Type': value[5],
+               'Setting': value[6], 'MinorLoss': value[7]}
         inp_valves.append(val)
     fullinputs['VALVES'] = inp_valves
     tags = dbcommunication.read_db_values('SELECT * FROM water_tags')
@@ -417,7 +419,7 @@ def addDataToDatabase(allfields, fieldsdic):
 
 def writeTheTitles(file, title):
     file.write("\n")
-    file.write(str(title)+"\n")
+    file.write(str(title) + "\n")
     file.write(";")
 
 
@@ -533,7 +535,7 @@ def newinputfilecreation(filename, datadic):
 
 def runepanetsim(inputfilename, binaryfilename, reportfilename):
     print('Running Water Simulator')
-    #commandtorun = 'cmd /c epanet2d '+str(inputfilename)+' '+str(reportfilename)+' '+str(binaryfilename)
+    # commandtorun = 'cmd /c epanet2d '+str(inputfilename)+' '+str(reportfilename)+' '+str(binaryfilename)
     commandtorun = 'epanet2 ' + str(inputfilename) + ' ' + str(reportfilename) + ' ' + str(binaryfilename)
     print(commandtorun)
     os.system(commandtorun)
@@ -616,9 +618,9 @@ def bin2jsonfull(nomeinp, nomeout, nomebin, nomeresult, sim_dur, rep_step, qual_
             json.dump(data, write_file)
 
 
-def epanetandbin2jsonwntr(inp_file,out_json):
+def epanetandbin2jsonwntr(inp_file, out_json):
     wn = wntr.network.WaterNetworkModel(inp_file)
-    simulation = wntr.sim.EpanetSimulator(wn, mode='PDD')
+    simulation = wntr.sim.EpanetSimulator(wn)
     results = simulation.run_sim(file_prefix='basp/Water/WaterResults')
     jsontoexport = {"NodeID": {}, "NodeType": {}, "NodeDemand": {}, "NodeHead": {}, "NodePressure": {},
                     "NodeQuality": {}, "LinkID": {}, "LinkType": {}, "LinkFlow": {}, "LinkFriction": {},
@@ -631,10 +633,10 @@ def epanetandbin2jsonwntr(inp_file,out_json):
         dem = results.node['demand'][value]
         dem = [elem * 3600 for elem in dem]
         jsontoexport["NodeDemand"][str(x)] = dem
-        #jsontoexport["NodeDemand"][str(x)] = list(results.node['demand'][value])
+        # jsontoexport["NodeDemand"][str(x)] = list(results.node['demand'][value])
         jsontoexport["NodePressure"][str(x)] = list(results.node['pressure'][value])
-        #jsontoexport["NodeHead"][str(x)] = list(results.node['head'][value])
-        #jsontoexport["NodeQuality"][str(x)] = list(results.node['quality'][value])
+        # jsontoexport["NodeHead"][str(x)] = list(results.node['head'][value])
+        # jsontoexport["NodeQuality"][str(x)] = list(results.node['quality'][value])
         x += 1
     x = 0
     for value in results.link['linkquality'].keys():
@@ -643,21 +645,21 @@ def epanetandbin2jsonwntr(inp_file,out_json):
         flows = results.link['flowrate'][value]
         flows = [elem * 3600 for elem in flows]
         jsontoexport["LinkFlow"][str(x)] = flows
-        #jsontoexport["LinkFlow"][str(x)] = list(results.link['flowrate'][value])
-        #jsontoexport["LinkFriction"][str(x)] = list(results.link['frictionfact'][value])
-        #jsontoexport["LinkHeadLoss"][str(x)] = list(results.link['headloss'][value])
-        #jsontoexport["LinkQuality"][str(x)] = list(results.link['linkquality'][value])
-        #jsontoexport["LinkReactionRate"][str(x)] = list(results.link['rxnrate'][value])
-        #jsontoexport["LinkSetting"][str(x)] = list(results.link['setting'][value])
-        #jsontoexport["LinkStatus"][str(x)] = list(results.link['status'][value])
-        #jsontoexport["LinkVelocity"][str(x)] = list(results.link['velocity'][value])
+        # jsontoexport["LinkFlow"][str(x)] = list(results.link['flowrate'][value])
+        # jsontoexport["LinkFriction"][str(x)] = list(results.link['frictionfact'][value])
+        # jsontoexport["LinkHeadLoss"][str(x)] = list(results.link['headloss'][value])
+        # jsontoexport["LinkQuality"][str(x)] = list(results.link['linkquality'][value])
+        # jsontoexport["LinkReactionRate"][str(x)] = list(results.link['rxnrate'][value])
+        # jsontoexport["LinkSetting"][str(x)] = list(results.link['setting'][value])
+        # jsontoexport["LinkStatus"][str(x)] = list(results.link['status'][value])
+        # jsontoexport["LinkVelocity"][str(x)] = list(results.link['velocity'][value])
         x += 1
     with open(out_json, 'w') as outfile:
         json.dump(jsontoexport, outfile)
 
 
-def wntr2jsonwntr(wn,out_json):
-    #wn = wntr.network.WaterNetworkModel(inp_file)
+def wntr2jsonwntr(wn, out_json):
+    # wn = wntr.network.WaterNetworkModel(inp_file)
     sim = wntr.sim.WNTRSimulator(wn)
     results = sim.run_sim()
     jsontoexport = {"NodeID": {}, "NodeType": {}, "NodeDemand": {}, "NodeHead": {}, "NodePressure": {},
@@ -738,7 +740,8 @@ def readjson(file, starttime, timeinterval):
             outputnodes = (data['NodeID'][p], data['NodeType'][p])
             water_output_nodes.append(outputnodes)
             newstarttime = starttime
-            for (v1, v2, v3, v4) in zip(data['NodeDemand'][p], data['NodeHead'][p], data['NodePressure'][p], data['NodeQuality'][p]):
+            for (v1, v2, v3, v4) in zip(data['NodeDemand'][p], data['NodeHead'][p], data['NodePressure'][p],
+                                        data['NodeQuality'][p]):
                 outputnodedetails = (data['NodeID'][p], newstarttime, v1, v2, v3, v4)
                 water_output_nodes_values.append(outputnodedetails)
                 newstarttime = newstarttime + dtm.timedelta(hours=int(timeinterval[0]), minutes=int(timeinterval[1]))
@@ -747,7 +750,10 @@ def readjson(file, starttime, timeinterval):
             outputlinks = (data['LinkID'][p], data['LinkType'][p])
             water_output_links.append(outputlinks)
             newstarttime = starttime
-            for (v1, v2, v3, v4, v5, v6, v7) in zip(data['LinkFriction'][p], data['LinkHeadLoss'][p], data['LinkQuality'][p], data['LinkReactionRate'][p], data['LinkSetting'][p], data['LinkStatus'][p], data['LinkVelocity'][p]):
+            for (v1, v2, v3, v4, v5, v6, v7) in zip(data['LinkFriction'][p], data['LinkHeadLoss'][p],
+                                                    data['LinkQuality'][p], data['LinkReactionRate'][p],
+                                                    data['LinkSetting'][p], data['LinkStatus'][p],
+                                                    data['LinkVelocity'][p]):
                 outputlinkdetails = (data['LinkID'][p], newstarttime, v1, v2, v3, v4, v5, v6, v7)
                 water_output_links_values.append(outputlinkdetails)
                 newstarttime = newstarttime + dtm.timedelta(hours=int(timeinterval[0]), minutes=int(timeinterval[1]))
@@ -769,18 +775,18 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
     try:
         os.remove("/usr/src/app/grafana-provisioning/dashboards/WaterSensorsBaSP.json")
     except:
-        noremove=True
+        noremove = True
     try:
         client = InfluxDBClient(host='influxdb', port=8086, username='kios',
                                 password='kios1234!', database='virtual_city')
         print(client)
     except:
         client.close()
-    #Copy Generated Data JSON File
+    # Copy Generated Data JSON File
     src_dir = "/usr/src/app/basp/Water/jsonoutput.json"
-    dst_dir = "/usr/src/app/basp/uploads/"+str(experimentname)+"/simulationdata.json"
+    dst_dir = "/usr/src/app/basp/uploads/" + str(experimentname) + "/simulationdata.json"
     shutil.copy2(src_dir, dst_dir)
-    timeinterval = int(timeinterval/60)
+    timeinterval = int(timeinterval / 60)
     WaterOutputScadaSensorDetails = []
     WaterOutputScadaSensors = []
     WaterOutputScadaSensorsinflux = []
@@ -790,14 +796,17 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
     demand = []
     influxsensordata = []
     sumodata = []
-    influxsensordatainfluxname = "water_output_"+str(experimentname)+"_sensors"
+    influxsensordatainfluxname = "water_output_" + str(experimentname) + "_sensors"
     for values in sensors['sensors']:
         if values['sensortype'] == "pressure":
-            pressure.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype":values['sensortype'], "sensorlat":values['lat'], "sensorlong":values['long']})
+            pressure.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype": values['sensortype'],
+                             "sensorlat": values['lat'], "sensorlong": values['long']})
         elif values['sensortype'] == "flow":
-            flow.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype":values['sensortype'], "sensorlat":values['lat'], "sensorlong":values['long']})
+            flow.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype": values['sensortype'],
+                         "sensorlat": values['lat'], "sensorlong": values['long']})
         elif values['sensortype'] == "demand":
-            demand.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype":values['sensortype'], "sensorlat":values['lat'], "sensorlong":values['long']})
+            demand.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype": values['sensortype'],
+                           "sensorlat": values['lat'], "sensorlong": values['long']})
     for values in sensors['sensors']:
         sensordata = (values['sensorid'], values['id'], values['sensortype'], values['lat'], values['long'])
         WaterOutputScadaSensorDetails.append(sensordata)
@@ -842,15 +851,15 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
             for p1 in data['NodePressure'][ps['realid']]:
                 for values in sensors['sensors']:
                     if values['sensorid'] == ps['sid']:
-                        #res=sensorsProfile.sensorsValue(values['sensorid'], p1)
+                        # res=sensorsProfile.sensorsValue(values['sensorid'], p1)
                         res = "error"
-                        if res=="error":
+                        if res == "error":
                             resolution = values['resolution']
                             uncertainty = values['uncertainty']
                             uncertaintydist = values['uncertaintydist']
                             minval = values['min']
                             maxval = values['max']
-                            #Sensor Resolution
+                            # Sensor Resolution
                             t001 = str(resolution).split('.')
                             flformat = "{:." + str(len(t001[1])) + "f}"
                             if (float(p1) / float(resolution)).is_integer():
@@ -858,34 +867,37 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
                             else:
                                 resultwithrest = float(p1) - math.fmod(float(p1), float(resolution))
                                 resultwithrest = flformat.format(resultwithrest)
-                            #Sensor Uncertainty
+                            # Sensor Uncertainty
                             if uncertainty > 0:
-                                unc_value = (float(resultwithrest) * float(uncertainty))/float(100)
+                                unc_value = (float(resultwithrest) * float(uncertainty)) / float(100)
                                 randval = 0
-                                #Sensor Uncertainty Distribution
+                                # Sensor Uncertainty Distribution
                                 if uncertaintydist == "uniform":
                                     randval = random.uniform(-unc_value, unc_value)
                                 resultwithrest = float(resultwithrest) + float(randval)
                                 resultwithrest = flformat.format(resultwithrest)
                             if float(resultwithrest) > float(maxval):
                                 resultwithrest = maxval
-                            #elif float(resultwithrest) < float(minval):
+                            # elif float(resultwithrest) < float(minval):
                             #    resultwithrest = minval
                         else:
-                            resultwithrest=res
-                        outputsensdetails = (newstarttime, ps['sid'], resultwithrest, ps['nlid'], ps['sensortype'], ps['sensorlat'],ps['sensorlong'])
-                        #my_date_format = datetime.strptime(newstarttime, '%Y-%m-%d %H:%M:%S')
+                            resultwithrest = res
+                        outputsensdetails = (
+                        newstarttime, ps['sid'], resultwithrest, ps['nlid'], ps['sensortype'], ps['sensorlat'],
+                        ps['sensorlong'])
+                        # my_date_format = datetime.strptime(newstarttime, '%Y-%m-%d %H:%M:%S')
                         epoch_time = (newstarttime - datetime(1970, 1, 1)).total_seconds()
                         epoch_time = int(epoch_time * 1000)
-                        WaterOutputScadaSensorsinflux.append('{measurement},sensorid={sensorid},sensortype={sensortype},sensorlat={sensorlat},sensorlong={sensorlong} sensor_value={sensor_value},sensorconnectionid="{sensorconnectionid}" {timestamp}'
-                                                             .format(measurement=str(scadaresultsname),
-                                                                     sensorid=ps['sid'],
-                                                                     sensortype=ps['sensortype'],
-                                                                     sensorlat=ps['sensorlat'],
-                                                                     sensorlong=ps['sensorlong'],
-                                                                     sensor_value=p1,
-                                                                     sensorconnectionid=ps['nlid'],
-                                                                     timestamp=epoch_time))
+                        WaterOutputScadaSensorsinflux.append(
+                            '{measurement},sensorid={sensorid},sensortype={sensortype},sensorlat={sensorlat},sensorlong={sensorlong} sensor_value={sensor_value},sensorconnectionid="{sensorconnectionid}" {timestamp}'
+                            .format(measurement=str(scadaresultsname),
+                                    sensorid=ps['sid'],
+                                    sensortype=ps['sensortype'],
+                                    sensorlat=ps['sensorlat'],
+                                    sensorlong=ps['sensorlong'],
+                                    sensor_value=p1,
+                                    sensorconnectionid=ps['nlid'],
+                                    timestamp=epoch_time))
                         WaterOutputScadaSensors.append(outputsensdetails)
                         newstarttime = newstarttime + dtm.timedelta(minutes=int(timeinterval))
         for ps in demand:
@@ -910,7 +922,7 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
                             else:
                                 resultwithrest = float(p1) - math.fmod(float(p1), float(resolution))
                                 resultwithrest = flformat.format(resultwithrest)
-                            
+
                             #Add Uncertainty
                             if uncertainty > 0:
                                 unc_value = (float(resultwithrest) * float(uncertainty))/float(100)
@@ -926,8 +938,10 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
                         else:
                             resultwithrest=res
                         '''
-                        outputsensdetails = (newstarttime, ps['sid'], resultwithrest,ps['nlid'],ps['sensortype'],ps['sensorlat'],ps['sensorlong'])
-                        #my_date_format = datetime.strptime(newstarttime, '%Y-%m-%d %H:%M:%S')
+                        outputsensdetails = (
+                        newstarttime, ps['sid'], resultwithrest, ps['nlid'], ps['sensortype'], ps['sensorlat'],
+                        ps['sensorlong'])
+                        # my_date_format = datetime.strptime(newstarttime, '%Y-%m-%d %H:%M:%S')
                         epoch_time = (newstarttime - datetime(1970, 1, 1)).total_seconds()
                         epoch_time = int(epoch_time * 1000)
                         WaterOutputScadaSensorsinflux.append(
@@ -947,7 +961,7 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
             for p1 in data['LinkFlow'][ps['realid']]:
                 for values in sensors['sensors']:
                     if values['sensorid'] == ps['sid']:
-                        #res = sensorsProfile.sensorsValue(values['sensorid'], p1)
+                        # res = sensorsProfile.sensorsValue(values['sensorid'], p1)
                         res = "error"
                         if res == "error":
                             resolution = values['resolution']
@@ -955,7 +969,7 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
                             uncertaintydist = values['uncertaintydist']
                             minval = values['min']
                             maxval = values['max']
-                            #Change Resolution
+                            # Change Resolution
                             t001 = str(resolution).split('.')
                             flformat = "{:." + str(len(t001[1])) + "f}"
                             if (float(p1) / float(resolution)).is_integer():
@@ -963,9 +977,9 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
                             else:
                                 resultwithrest = float(p1) - math.fmod(float(p1), float(resolution))
                                 resultwithrest = flformat.format(resultwithrest)
-                            #Add Uncertainty
+                            # Add Uncertainty
                             if uncertainty > 0:
-                                unc_value = (float(resultwithrest) * float(uncertainty))/float(100)
+                                unc_value = (float(resultwithrest) * float(uncertainty)) / float(100)
                                 randval = 0
                                 if uncertaintydist == "uniform":
                                     randval = random.uniform(-unc_value, unc_value)
@@ -973,11 +987,13 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
                                 resultwithrest = flformat.format(resultwithrest)
                             if float(resultwithrest) > float(maxval):
                                 resultwithrest = maxval
-                            #elif float(resultwithrest) < float(minval):
+                            # elif float(resultwithrest) < float(minval):
                             #    resultwithrest = minval
                         else:
-                            resultwithrest=res
-                        outputsensdetails = (newstarttime, ps['sid'], resultwithrest,ps['nlid'],ps['sensortype'],ps['sensorlat'],ps['sensorlong'])
+                            resultwithrest = res
+                        outputsensdetails = (
+                        newstarttime, ps['sid'], resultwithrest, ps['nlid'], ps['sensortype'], ps['sensorlat'],
+                        ps['sensorlong'])
                         epoch_time = (newstarttime - datetime(1970, 1, 1)).total_seconds()
                         epoch_time = int(epoch_time * 1000)
                         WaterOutputScadaSensorsinflux.append(
@@ -993,7 +1009,7 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
                         WaterOutputScadaSensors.append(outputsensdetails)
                         newstarttime = newstarttime + dtm.timedelta(minutes=int(timeinterval))
 
-    water_table_for_json = "water_output_"+str(experimentname)+"_scada_sensors"
+    water_table_for_json = "water_output_" + str(experimentname) + "_scada_sensors"
     water_table_for_json_sensors = "water_output_" + str(experimentname) + "_sensors"
 
     if WaterOutputScadaSensors:
@@ -1004,10 +1020,11 @@ def readjsonwithfiles(file, starttime, timeinterval, sensors, experimentname):
             print(client)
         except:
             client.close()
-        client.write_points(WaterOutputScadaSensorsinflux, database='virtual_city', time_precision='ms', batch_size=10000, protocol='line')
-        client.write_points(influxsensordata, database='virtual_city', time_precision='ms',batch_size=10000, protocol='line')
-        #client.write_points(sumodata, database='virtual_city', time_precision='ms', batch_size=10000,protocol='line')
-
+        client.write_points(WaterOutputScadaSensorsinflux, database='virtual_city', time_precision='ms',
+                            batch_size=10000, protocol='line')
+        client.write_points(influxsensordata, database='virtual_city', time_precision='ms', batch_size=10000,
+                            protocol='line')
+        # client.write_points(sumodata, database='virtual_city', time_precision='ms', batch_size=10000,protocol='line')
 
         client.close()
 
@@ -1069,11 +1086,11 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
         print(client)
     except:
         client.close()
-    #Copy Generated Data JSON File
+    # Copy Generated Data JSON File
     src_dir = "/usr/src/app/basp/Water/jsonoutput.json"
-    dst_dir = "/usr/src/app/basp/uploads/"+str(experimentname)+"/simulationdata.json"
+    dst_dir = "/usr/src/app/basp/uploads/" + str(experimentname) + "/simulationdata.json"
     shutil.copy2(src_dir, dst_dir)
-    timeinterval = int(timeinterval/60)
+    timeinterval = int(timeinterval / 60)
     WaterOutputScadaSensorDetails = []
     WaterOutputScadaSensors = []
     WaterOutputScadaSensorsinflux = []
@@ -1082,17 +1099,20 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
     pressure = []
     demand = []
     influxsensordata = []
-    influxsensordatainfluxname = "water_output_"+str(experimentname)+"_sensors"
+    influxsensordatainfluxname = "water_output_" + str(experimentname) + "_sensors"
     query = "SELECT * FROM " + influxsensordatainfluxname
     resultneedsensors = client.query(query)
     client.close()
     for values in sensors['sensors']:
         if values['sensortype'] == "pressure":
-            pressure.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype":values['sensortype'], "sensorlat":values['lat'], "sensorlong":values['long']})
+            pressure.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype": values['sensortype'],
+                             "sensorlat": values['lat'], "sensorlong": values['long']})
         elif values['sensortype'] == "flow":
-            flow.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype":values['sensortype'], "sensorlat":values['lat'], "sensorlong":values['long']})
+            flow.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype": values['sensortype'],
+                         "sensorlat": values['lat'], "sensorlong": values['long']})
         elif values['sensortype'] == "demand":
-            demand.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype":values['sensortype'], "sensorlat":values['lat'], "sensorlong":values['long']})
+            demand.append({"sid": values['sensorid'], "nlid": values['id'], "sensortype": values['sensortype'],
+                           "sensorlat": values['lat'], "sensorlong": values['long']})
     for values in sensors['sensors']:
         sensordata = (values['sensorid'], values['id'], values['sensortype'], values['lat'], values['long'])
         WaterOutputScadaSensorDetails.append(sensordata)
@@ -1136,58 +1156,7 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
             for p1 in data['NodePressure'][ps['realid']]:
                 for values in sensors['sensors']:
                     if values['sensorid'] == ps['sid']:
-                        #res=sensorsProfile.sensorsValue(values['sensorid'], p1)
-                        res = "error"
-                        if res=="error":
-                            resolution = values['resolution']
-                            uncertainty = values['uncertainty']
-                            uncertaintydist = values['uncertaintydist']
-                            minval = values['min']
-                            maxval = values['max']
-                            #Sensor Resolution
-                            t001 = str(resolution).split('.')
-                            flformat = "{:." + str(len(t001[1])) + "f}"
-                            if (float(p1) / float(resolution)).is_integer():
-                                resultwithrest = p1
-                            else:
-                                resultwithrest = float(p1) - math.fmod(float(p1), float(resolution))
-                                resultwithrest = flformat.format(resultwithrest)
-                            #Sensor Uncertainty
-                            if uncertainty > 0:
-                                unc_value = (float(resultwithrest) * float(uncertainty))/float(100)
-                                randval = 0
-                                #Sensor Uncertainty Distribution
-                                if uncertaintydist == "uniform":
-                                    randval = random.uniform(-unc_value, unc_value)
-                                resultwithrest = float(resultwithrest) + float(randval)
-                                resultwithrest = flformat.format(resultwithrest)
-                            if float(resultwithrest) > float(maxval):
-                                resultwithrest = maxval
-                            elif float(resultwithrest) < float(minval):
-                                resultwithrest = minval
-                        else:
-                            resultwithrest=res
-                        outputsensdetails = (newstarttime, ps['sid'], resultwithrest, ps['nlid'], ps['sensortype'], ps['sensorlat'],ps['sensorlong'])
-                        #my_date_format = datetime.strptime(newstarttime, '%Y-%m-%d %H:%M:%S')
-                        epoch_time = (newstarttime - datetime(1970, 1, 1)).total_seconds()
-                        epoch_time = int(epoch_time * 1000)
-                        WaterOutputScadaSensorsinflux.append('{measurement},sensorid={sensorid},sensortype={sensortype},sensorlat={sensorlat},sensorlong={sensorlong} sensor_value={sensor_value},sensorconnectionid="{sensorconnectionid}" {timestamp}'
-                                                             .format(measurement=str(scadaresultsname),
-                                                                     sensorid=ps['sid'],
-                                                                     sensortype=ps['sensortype'],
-                                                                     sensorlat=ps['sensorlat'],
-                                                                     sensorlong=ps['sensorlong'],
-                                                                     sensor_value=resultwithrest,
-                                                                     sensorconnectionid=ps['nlid'],
-                                                                     timestamp=epoch_time))
-                        WaterOutputScadaSensors.append(outputsensdetails)
-                        newstarttime = newstarttime + dtm.timedelta(minutes=int(timeinterval))
-        for ps in demand:
-            newstarttime = starttime
-            for p1 in data['NodeDemand'][ps['realid']]:
-                for values in sensors['sensors']:
-                    if values['sensorid'] == ps['sid']:
-                        #res = sensorsProfile.sensorsValue(values['sensorid'], p1)
+                        # res=sensorsProfile.sensorsValue(values['sensorid'], p1)
                         res = "error"
                         if res == "error":
                             resolution = values['resolution']
@@ -1195,7 +1164,7 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
                             uncertaintydist = values['uncertaintydist']
                             minval = values['min']
                             maxval = values['max']
-                            #Change Resolution
+                            # Sensor Resolution
                             t001 = str(resolution).split('.')
                             flformat = "{:." + str(len(t001[1])) + "f}"
                             if (float(p1) / float(resolution)).is_integer():
@@ -1203,9 +1172,63 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
                             else:
                                 resultwithrest = float(p1) - math.fmod(float(p1), float(resolution))
                                 resultwithrest = flformat.format(resultwithrest)
-                            #Add Uncertainty
+                            # Sensor Uncertainty
                             if uncertainty > 0:
-                                unc_value = (float(resultwithrest) * float(uncertainty))/float(100)
+                                unc_value = (float(resultwithrest) * float(uncertainty)) / float(100)
+                                randval = 0
+                                # Sensor Uncertainty Distribution
+                                if uncertaintydist == "uniform":
+                                    randval = random.uniform(-unc_value, unc_value)
+                                resultwithrest = float(resultwithrest) + float(randval)
+                                resultwithrest = flformat.format(resultwithrest)
+                            if float(resultwithrest) > float(maxval):
+                                resultwithrest = maxval
+                            elif float(resultwithrest) < float(minval):
+                                resultwithrest = minval
+                        else:
+                            resultwithrest = res
+                        outputsensdetails = (
+                        newstarttime, ps['sid'], resultwithrest, ps['nlid'], ps['sensortype'], ps['sensorlat'],
+                        ps['sensorlong'])
+                        # my_date_format = datetime.strptime(newstarttime, '%Y-%m-%d %H:%M:%S')
+                        epoch_time = (newstarttime - datetime(1970, 1, 1)).total_seconds()
+                        epoch_time = int(epoch_time * 1000)
+                        WaterOutputScadaSensorsinflux.append(
+                            '{measurement},sensorid={sensorid},sensortype={sensortype},sensorlat={sensorlat},sensorlong={sensorlong} sensor_value={sensor_value},sensorconnectionid="{sensorconnectionid}" {timestamp}'
+                            .format(measurement=str(scadaresultsname),
+                                    sensorid=ps['sid'],
+                                    sensortype=ps['sensortype'],
+                                    sensorlat=ps['sensorlat'],
+                                    sensorlong=ps['sensorlong'],
+                                    sensor_value=resultwithrest,
+                                    sensorconnectionid=ps['nlid'],
+                                    timestamp=epoch_time))
+                        WaterOutputScadaSensors.append(outputsensdetails)
+                        newstarttime = newstarttime + dtm.timedelta(minutes=int(timeinterval))
+        for ps in demand:
+            newstarttime = starttime
+            for p1 in data['NodeDemand'][ps['realid']]:
+                for values in sensors['sensors']:
+                    if values['sensorid'] == ps['sid']:
+                        # res = sensorsProfile.sensorsValue(values['sensorid'], p1)
+                        res = "error"
+                        if res == "error":
+                            resolution = values['resolution']
+                            uncertainty = values['uncertainty']
+                            uncertaintydist = values['uncertaintydist']
+                            minval = values['min']
+                            maxval = values['max']
+                            # Change Resolution
+                            t001 = str(resolution).split('.')
+                            flformat = "{:." + str(len(t001[1])) + "f}"
+                            if (float(p1) / float(resolution)).is_integer():
+                                resultwithrest = p1
+                            else:
+                                resultwithrest = float(p1) - math.fmod(float(p1), float(resolution))
+                                resultwithrest = flformat.format(resultwithrest)
+                            # Add Uncertainty
+                            if uncertainty > 0:
+                                unc_value = (float(resultwithrest) * float(uncertainty)) / float(100)
                                 randval = 0
                                 if uncertaintydist == "uniform":
                                     randval = random.uniform(-unc_value, unc_value)
@@ -1216,9 +1239,11 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
                             elif float(resultwithrest) < float(minval):
                                 resultwithrest = minval
                         else:
-                            resultwithrest=res
-                        outputsensdetails = (newstarttime, ps['sid'], resultwithrest,ps['nlid'],ps['sensortype'],ps['sensorlat'],ps['sensorlong'])
-                        #my_date_format = datetime.strptime(newstarttime, '%Y-%m-%d %H:%M:%S')
+                            resultwithrest = res
+                        outputsensdetails = (
+                        newstarttime, ps['sid'], resultwithrest, ps['nlid'], ps['sensortype'], ps['sensorlat'],
+                        ps['sensorlong'])
+                        # my_date_format = datetime.strptime(newstarttime, '%Y-%m-%d %H:%M:%S')
                         epoch_time = (newstarttime - datetime(1970, 1, 1)).total_seconds()
                         epoch_time = int(epoch_time * 1000)
                         WaterOutputScadaSensorsinflux.append(
@@ -1238,7 +1263,7 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
             for p1 in data['LinkFlow'][ps['realid']]:
                 for values in sensors['sensors']:
                     if values['sensorid'] == ps['sid']:
-                        #res = sensorsProfile.sensorsValue(values['sensorid'], p1)
+                        # res = sensorsProfile.sensorsValue(values['sensorid'], p1)
                         res = "error"
                         if res == "error":
                             resolution = values['resolution']
@@ -1246,7 +1271,7 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
                             uncertaintydist = values['uncertaintydist']
                             minval = values['min']
                             maxval = values['max']
-                            #Change Resolution
+                            # Change Resolution
                             t001 = str(resolution).split('.')
                             flformat = "{:." + str(len(t001[1])) + "f}"
                             if (float(p1) / float(resolution)).is_integer():
@@ -1254,9 +1279,9 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
                             else:
                                 resultwithrest = float(p1) - math.fmod(float(p1), float(resolution))
                                 resultwithrest = flformat.format(resultwithrest)
-                            #Add Uncertainty
+                            # Add Uncertainty
                             if uncertainty > 0:
-                                unc_value = (float(resultwithrest) * float(uncertainty))/float(100)
+                                unc_value = (float(resultwithrest) * float(uncertainty)) / float(100)
                                 randval = 0
                                 if uncertaintydist == "uniform":
                                     randval = random.uniform(-unc_value, unc_value)
@@ -1267,8 +1292,10 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
                             elif float(resultwithrest) < float(minval):
                                 resultwithrest = minval
                         else:
-                            resultwithrest=res
-                        outputsensdetails = (newstarttime, ps['sid'], resultwithrest,ps['nlid'],ps['sensortype'],ps['sensorlat'],ps['sensorlong'])
+                            resultwithrest = res
+                        outputsensdetails = (
+                        newstarttime, ps['sid'], resultwithrest, ps['nlid'], ps['sensortype'], ps['sensorlat'],
+                        ps['sensorlong'])
                         epoch_time = (newstarttime - datetime(1970, 1, 1)).total_seconds()
                         epoch_time = int(epoch_time * 1000)
                         WaterOutputScadaSensorsinflux.append(
@@ -1284,7 +1311,7 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
                         WaterOutputScadaSensors.append(outputsensdetails)
                         newstarttime = newstarttime + dtm.timedelta(minutes=int(timeinterval))
 
-    water_table_for_json = "water_output_"+str(experimentname)+"_scada_sensors"
+    water_table_for_json = "water_output_" + str(experimentname) + "_scada_sensors"
     water_table_for_json_sensors = "water_output_" + str(experimentname) + "_sensors"
 
     if WaterOutputScadaSensors:
@@ -1295,13 +1322,15 @@ def readjsonwithfilesstep(file, starttime, timeinterval, sensors, experimentname
             print(client)
         except:
             client.close()
-        client.write_points(WaterOutputScadaSensorsinflux, database='virtual_city', time_precision='ms', batch_size=10000, protocol='line')
-        if len(resultneedsensors)==0:
-            client.write_points(influxsensordata, database='virtual_city', time_precision='ms',batch_size=10000, protocol='line')
+        client.write_points(WaterOutputScadaSensorsinflux, database='virtual_city', time_precision='ms',
+                            batch_size=10000, protocol='line')
+        if len(resultneedsensors) == 0:
+            client.write_points(influxsensordata, database='virtual_city', time_precision='ms', batch_size=10000,
+                                protocol='line')
         client.close()
 
     shutil.copyfile("/usr/src/app/grafana-provisioning/dashboards/template/WaterSensorsBaSP.json",
-             "/usr/src/app/grafana-provisioning/dashboards/WaterSensorsBaSP.json")
+                    "/usr/src/app/grafana-provisioning/dashboards/WaterSensorsBaSP.json")
     with open('/usr/src/app/grafana-provisioning/dashboards/WaterSensorsBaSP.json', 'r') as file:
         filedata = file.read()
     filedata = filedata.replace('water_output_test1_scada_sensors', str(water_table_for_json))
@@ -1324,7 +1353,8 @@ if __name__ == "__main__":
     print('Create new EPANET Input (inp) file using the database values')
     newinputfilecreation('Water/Water.inp', fullinputs)
     runepanetsim('Water/Water.inp', 'Water/report.txt', 'Water/binary.bin')
-    bin2json(b'Water/Water.inp', b'Water/Water.txt', b'Water/Water.bin', 'Water/jsonoutput.json', '24:00', '0:05', '0:05', 'Water')
+    bin2json(b'Water/Water.inp', b'Water/Water.txt', b'Water/Water.bin', 'Water/jsonoutput.json', '24:00', '0:05',
+             '0:05', 'Water')
     startdate = '2020-01-01'
     startdate_object = datetime.strptime(startdate, '%Y-%m-%d')
     interval = 30
