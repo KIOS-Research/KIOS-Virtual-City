@@ -18,7 +18,7 @@ KIOS BaSP acts as the backend of Critical Infrastructure Systems simulators and 
 ## Installation
 
 - Install [Docker](https://www.docker.com/) on your machine (If Docker cannot start with the error message `Cannot enable Hyper-V service` you have to enable Hyper-V (VTx) in system BIOS)
-- Get the latest [Tag](https://github.com/KIOS-Research/KIOS-Virtual-City) from this repository
+- Get the latest release from [KIOS Github repository](https://github.com/KIOS-Research/KIOS-Virtual-City/releases)
 - Open Git Bash, got into `epanet` directory and run the following command `dos2unix.exe entrypoint.sh` 
 - Open cmd/terminal, change directory to `KIOS-Virtual-City` directory and run the following command `docker-compose up -d --build --remove-orphans`
 - Once the installation is finished, the KIOS Virtual City will be accessible from `http://localhost:8000/api`
