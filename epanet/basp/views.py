@@ -1235,8 +1235,11 @@ class WaterJSONFileView(viewsets.ViewSet):
             for value in existing_ex_names:
                 allthenames.append(value.ex_name)
             if experimentname in allthenames:
-                filename = "basp\\uploads\\"+str(experimentname)+"\\simulationdata.json"
+                import os
+                BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                filename = "basp/uploads/"+str(experimentname)+"/simulationdata.json"
                 fin_filename = "simulationdata.json"
+                filename = os.path.join(BASE_DIR, filename)
                 response = FileResponse(open(filename, 'rb'))
                 response['Content-Disposition'] = 'attachment; filename="%s"' % fin_filename
                 return response
