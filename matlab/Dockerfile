@@ -7,8 +7,10 @@
 
 FROM debian:stretch-slim
 ENV DEBIAN_FRONTEND noninteractive
-
+RUN echo "deb http://security.debian.org/debian-security bullseye-security main contrib non-free" > /etc/apt/sources.list
+RUN echo "deb http://deb.debian.org/debian/ buster main" > /etc/apt/sources.list
 RUN apt-get -q update
+RUN apt upgrade -q -y
 RUN apt-get install -q -y --no-install-recommends xorg unzip wget curl ca-certificates ssh openssh-server iputils-ping net-tools dos2unix
 COPY ./ssh/sshd_config /etc/ssh/sshd_config
 RUN echo 'root:matlab' | chpasswd
@@ -17,8 +19,7 @@ RUN mkdir /opt/mcr
 WORKDIR /mcr-install
 COPY ./power ./power
 COPY ./run.sh ./run.sh
-#COPY ./MATLAB_Runtime_R2020b_glnxa64.zip ./MATLAB_Runtime_R2020b_glnxa64.zip
-#COPY . .
+
 RUN wget -q https://ssd.mathworks.com/supportfiles/downloads/R2020b/Release/0/deployment_files/installer/complete/glnxa64/MATLAB_Runtime_R2020b_glnxa64.zip
 RUN unzip -q MATLAB_Runtime_R2020b_glnxa64.zip
 RUN ./install -destinationFolder /opt/mcr -agreeToLicense yes -mode silent

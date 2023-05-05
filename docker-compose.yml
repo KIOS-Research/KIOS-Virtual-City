@@ -46,6 +46,12 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_INSTALL_PLUGINS=grafana-worldmap-panel
+  matlab:
+    build: ./matlab
+    stdin_open: true
+    tty: true
+    ports:
+      - 22:22
   sumo:
     build: ./sumo
     ports:
@@ -54,12 +60,6 @@ services:
       - ./:/usr/src/app/
     stdin_open: true
     tty: true
-  matlab:
-    build: ./matlab
-    stdin_open: true
-    tty: true
-    ports:
-      - 22:22
 volumes:
   postgres_data:
   grafana_data:
