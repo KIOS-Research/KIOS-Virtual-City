@@ -1,6 +1,4 @@
 % KIOS BaSP API - MATLAB Library
-% (C)Georgia Anastasi 2020
-% anastasi.georgia@ucy.ac.cy
 % University of Cyprus, KIOS Research Center of Excellence
 classdef KIOSBaSP
     properties
