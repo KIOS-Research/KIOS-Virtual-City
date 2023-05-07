@@ -9,7 +9,7 @@ ReservedNames=SavedNames.reserved_list;
 
 %% User input data
 fileName = 'sensors.json'; % filename in JSON extension
-leakagefile='dataset_configuration.yalm';
+leakagefile='dataset_configuration.yaml';
 sensors = fileread(fileName); % dedicated for reading files as text 
 data = jsondecode(sensors); %
 
