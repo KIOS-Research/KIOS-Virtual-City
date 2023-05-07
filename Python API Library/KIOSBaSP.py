@@ -1,6 +1,4 @@
 # KIOS BaSP API - Python Library
-# (C)Georgios Procopi 2020
-# procopi.georgios@ucy.ac.cy
 # University of Cyprus, KIOS Research Center of Excellence
 
 import requests
